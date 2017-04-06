@@ -25,6 +25,10 @@ get '/' do
 	erb :index
 end
 
+get '/userpage' do
+	erb :userview
+end
+
 get '/meeting' do
 	return "" unless request.websocket?
 

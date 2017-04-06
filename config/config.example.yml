@@ -1,2 +1,0 @@
-# Specify environment: "development" / "production"
-ENV: "development"

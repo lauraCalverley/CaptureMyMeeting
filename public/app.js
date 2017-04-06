@@ -20,12 +20,14 @@ var canvas, ctx;
 var bg;
 
 $(document).ready(function() {
+	$("#bounding-prompt").hide();
+	$("#stream").hide();
+	$("#meeting-controls").hide();
+	setEventListeners();
 	updateMedia();
 	canvas.width = $(video).width();
 	canvas.height = $(video).height()
-
 	navigator.mediaDevices.getUserMedia(mediaOptions).then(handleSuccess).catch(handleError);
-	setEventListeners();
 });
 
 function updateMedia() {
@@ -71,48 +73,65 @@ function beginSnapshot() {
 	}
 }
 
+function sendCoordinates(string) {
+	// Send coordinates
+	if (coordSrc != undefined && coordEnd != undefined) {
+		$(string).off("click");
+		$.post({
+			url: "/send_box",
+			data: {
+				x: coordSrc.x,
+				y: coordSrc.y,
+				width: coordEnd.x,
+				height: coordEnd.y
+			},
+			success: function(data, result, xhr) {
+				console.log("HOORAH, Bounding Box Saved");
+			},
+			error: function(data, result, xhr) {
+				console.error("Error saving bounding box");
+			}
+		});
+		// turn off event listeners
+		$(canvas).off("mousedown");
+		$(canvas).off("mouseup");
+		$(canvas).off("mouseover");
+		$(canvas).off("mouseout");
+
+		if($(string).is("#dev-draw-bounds")) {
+			$(string).html("Set bounding box");
+		} else {
+			alert('Boundaries Saved!');
+			$("#bounding-prompt").hide();
+			$("#set-bounds-image").hide();
+			$("#meeting-controls").show();
+		}
+
+		setDrawBounds();
+	} else {
+		console.error("Attempted to set non-existing bounds");
+	}
+
+}
+
 
 function setDrawBounds() {
-	$("#draw-bounds").on("click", function(e) {
+	$(".draw-bounds").on("click", function(e) {
 		specifyWhiteboardBounds();
 
 		// Set
 		$(this).off("click");
-		$(this).html("Save bounds");
-		$(this).on("click", function(e) {
-			// Send coordinates
-			if (coordSrc != undefined && coordEnd != undefined) {
-				$(this).off("click");
-				$.post({
-					url: "/send_box",
-					data: {
-						x: coordSrc.x,
-						y: coordSrc.y,
-						width: coordEnd.x,
-						height: coordEnd.y
-					},
-					success: function(data, result, xhr) {
-						console.log("HOORAH, Bounding Box Saved");
-					},
-					error: function(data, result, xhr) {
-						console.error("Error saving bounding box");
-					}
-				});
-
-				// turn off event listeners
-				$(canvas).off("mousedown");
-				$(canvas).off("mouseup");
-				$(canvas).off("mouseover");
-				$(canvas).off("mouseout");
-
-
-				$(this).html("Set bounding box");
-				setDrawBounds();
-			} else {
-				console.error("Attempted to set non-existing bounds");
-			}
-
-		});
+		if($(this).is("#dev-draw-bounds")) {
+			$(this).html("Save bounds");
+			$(this).on("click", function(e) {
+				sendCoordinates('#dev-draw-bounds');	
+			});
+		} else {
+			$('#save-bounds').on("click", function(e) {
+				sendCoordinates('#save-bounds');
+			});
+		}
+		
 	});
 }
 
@@ -145,12 +164,27 @@ function setEventListeners() {
 
 	// Take Snapshots
 	$("#start-meeting").on("click", function(e){
+		if(document.getElementById("stream")) {
+			$("#stream").show();
+		}
 		connectWebsocket();
 	});
 
 	// Stop Meeting
 	$("#stop-meeting").on("click", function(e) {
 		webSocket.close();
+		if(document.getElementById("stream")) {
+			$("#stream").hide();
+		}
+		if(document.getElementById("meeting-controls")) {
+			$("#meeting-controls").hide();
+		}
+		alert('Your meeting has concluded!');
+	});
+	
+	// New Meeting
+	$("#new-meeting").on("click", function(e) {
+		$("#bounding-prompt").show();
 	});
 }
 

@@ -1,0 +1,36 @@
+<html>
+<head>
+	<meta charset='utf-8' />
+	<title>CaptureMyMeeting</title>
+	<link rel='stylesheet' href="/stylesheet.css">
+</head>
+<body id="user-page">
+<div id="user-container">
+
+<div class="header">
+	<h3 class="header-title">CaptureMyMeeting</h3>
+	<button id="new-meeting" class="left header-button draw-bounds">New Meeting</button>
+</div>
+
+<div id="bounding-prompt" class="prompt">
+	Please set boundaries for whiteboard before beginning the meeting.
+	<button id="save-bounds">Save Boundaries</button>
+</div>
+<div id="meeting-controls" class="prompt">
+	<button id="start-meeting">Start Meeting</button>
+	<button id="stop-meeting">Stop Meeting</button>
+</div>
+<div id="set-bounds-image" class="video-output">
+	<video id="video-src" autoplay></video>
+	<canvas id="meeting-canvas"></canvas>
+</div>
+<div id="stream" class="video-output">
+	<img id="server-image"></img>
+</div>
+
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script type="text/javascript" src="app.js"></script>
+</body>
+</html>
