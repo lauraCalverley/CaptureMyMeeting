@@ -1,8 +1,4 @@
-# sass output
+# node modules
+node_modules/*
+public/uploads
 .sass-*
-
-# data output
-public/uploads/*.png
-
-# config files
-config/config.yml
